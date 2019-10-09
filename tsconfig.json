@@ -19,7 +19,7 @@
     "paths": {
       "angular-esri-components": [
         "dist/angular-esri-components"
-      ]
+      ]    
     }
   }
 }

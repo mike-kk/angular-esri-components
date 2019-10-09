@@ -1,12 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { EsriModuleProvider } from 'angular-esri-components';
-
+import { DragAndDropModule } from 'angular-draggable-droppable';
+ 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  @ViewChild('test')
+  test: ElementRef;
+
   title = 'app';
 
   mapProperties: __esri.MapProperties = {
@@ -20,16 +24,57 @@ export class AppComponent {
   mapView: __esri.MapView;
 
   constructor(private moduleProvider: EsriModuleProvider) { }
-
+  onClick() {
+    alert('hey');
+  }
   onMapInit(mapInfo: {map: __esri.Map, mapView: __esri.MapView}) {
     this.map = mapInfo.map;
     this.mapView = mapInfo.mapView;
 
+    
+
     // add a layer with sublayers to map
     this.moduleProvider
-      .require(['esri/layers/MapImageLayer'])
+      .require(['esri/layers/MapImageLayer', 'esri/PopupTemplate', 'esri/layers/FeatureLayer'])
       .then(
-        ([MapImageLayer]) => {
+        ([MapImageLayer, PopupTemplate, FeatureLayer]) => {
+          const featureLayer = new FeatureLayer({
+            url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Marital_Status_Boundaries/FeatureServer/2"
+          });
+        
+          // var template = {
+          //   // autocasts as new PopupTemplate()
+          //   title: "{NAME} in {COUNTY}",
+          //   content: [
+          //     {
+          //       type: "fields",
+          //       fieldInfos: [
+          //         {
+          //           fieldName: "B12001_calc_pctMarriedE",
+          //           label: "Married %"
+          //         },
+          //         {
+          //           fieldName: "B12001_calc_numMarriedE",
+          //           label: "People Married"
+          //         },
+          //         {
+          //           fieldName: "B12001_calc_numNeverE",
+          //           label: "People that Never Married"
+          //         },
+          //         {
+          //           fieldName: "B12001_calc_numDivorcedE",
+          //           label: "People Divorced"
+          //         }
+          //       ]
+          //     }
+          //   ]
+          // };
+          const template = {
+            title: 'hey',
+            content: this.test.nativeElement
+          };
+          featureLayer.popupTemplate = template;
+          
           const layer = new MapImageLayer({
             url: 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer',
             sublayers: [
@@ -57,6 +102,7 @@ export class AppComponent {
           });
 
           this.map.layers.add(layer);
+          this.map.layers.add(featureLayer);
         });
   }
 }
